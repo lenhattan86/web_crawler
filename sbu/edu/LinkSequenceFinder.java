@@ -25,37 +25,51 @@ public class LinkSequenceFinder {
 //		String websiteLink2 = "https://en.wikipedia.org/wiki/American_biscuit";
 		
 		List<String> linkSequence = new ArrayList<String>();
+		List<String> linkDatabase = new ArrayList<String>();
 		linkSequence.add(websiteLink1);
-		searchWebsite(websiteLink1, 0, websiteLink2, 2, linkSequence);
+		linkDatabase.add(websiteLink1);
+		searchWebsite(websiteLink1, 0, websiteLink2, 2, linkSequence,linkDatabase);
 		System.out.println("DONE");
 	}
+	
+	public static boolean isStop = false;
 
 	public static List<String> searchWebsite(String inputLink, int currentLevel, String targetLink, int maxLevel,
-			List<String> linkSequence) {
+			List<String> linkSequence, List<String> linkDatabase ) {
 		List<String> result = null;
+		
 		if (currentLevel > maxLevel)
 			return result;
 
-		if (inputLink.equals(targetLink)) {
+		List<String> links;
+		try {
+			links = Reader.listDomainLinks(inputLink, LinkSequenceFinder.WIKIPEDIA);
+		} catch (ParserException e) {
+			return result;
+		}
+		
+		if (links.contains(targetLink)){
+			linkSequence.add(targetLink);
 			result = linkSequence;
+			isStop = true;
 			System.out.println("We found the link sequence as follows.");
 			for (int i = 0; i < linkSequence.size(); i++)
 				System.out.println(linkSequence.get(i).toString());
-		} else {
-			List<String> links;
-			try {
-				links = Reader.listDomainLinks(inputLink, LinkSequenceFinder.WIKIPEDIA);
-			} catch (ParserException e) {
-				return result;
-			}
-			int size = links.size();
-			currentLevel++;
-			for (int i = 0; i < size; i++){
-				String link = links.get(i).toString();
-				linkSequence.add(link);
-				result = searchWebsite(link, currentLevel, targetLink, maxLevel, linkSequence);
+			return result;
+		}
+			
+			
+		int size = links.size();
+//		System.out.println(size + " links on " + inputLink);
+		currentLevel++;
+		for (int i = 0; i < size; i++){
+			String link = links.get(i).toString();
+//			if(!linkDatabase.contains(link)) {
+				linkDatabase.add(link);
+				linkSequence.add(link);			
+				result = searchWebsite(link, currentLevel, targetLink, maxLevel, linkSequence, linkDatabase);
 				linkSequence.remove(linkSequence.size()-1);
-			}
+//			}
 		}
 
 		return result;

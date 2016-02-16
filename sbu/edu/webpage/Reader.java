@@ -46,9 +46,12 @@ public class Reader {
 	        final NodeList tagNodeList = htmlParser.extractAllNodesThatMatch(new NodeClassFilter(LinkTag.class));
 	        for (int j = 0; j < tagNodeList.size(); j++) {
 	            final LinkTag loopLink = (LinkTag) tagNodeList.elementAt(j);
-	            if(loopLink.isHTTPLikeLink()&&(!loopLink.getLink().contains(".jpg"))){
+	            if(loopLink.isHTTPLikeLink()){
 	            	final String loopLinkStr = loopLink.getLink();
-	            	result.add(loopLinkStr);
+	            	if((!loopLinkStr.contains(".jpg"))
+	            		&&(!loopLinkStr.contains(url+"#")) ){
+		            	result.add(loopLinkStr);
+	            	}
 	            }
 	        }
 	    } catch (ParserException e) {
